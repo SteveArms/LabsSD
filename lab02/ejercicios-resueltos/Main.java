@@ -73,7 +73,7 @@ class Process extends Thread {
     }
 }
 
-public class LamportUpgrade {
+public class Main {
     public static void main(String[] args) {
 
         Process p1 = new Process(1);
