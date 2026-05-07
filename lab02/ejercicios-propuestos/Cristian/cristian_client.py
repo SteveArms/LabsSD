@@ -14,10 +14,10 @@ client_socket.sendto(b'request_time', (SERVER_HOST, SERVER_PORT))
 
 # Recibir respuesta
 data, _ = client_socket.recvfrom(1024)
-t1 = int(time.time() * 1000)
+t1 = int(time.time() * 1000) # Se convierte a milisegundos
 
 server_time = int(data.decode())
-rtt = t1 - t0
+rtt = t1 - t0 # Tiempo de ida y vuelta en ms (round-trip time)
 offset = rtt // 2
 synced_time = server_time + offset
 

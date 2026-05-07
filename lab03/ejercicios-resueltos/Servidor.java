@@ -14,10 +14,10 @@ public class Servidor {
                 Socket skCliente = skServidor.accept(); // Crea objeto
                 System.out.println("Sirvo al cliente " + numCli);
 
-                OutputStream aux = skCliente.getOutputStream();
-                DataOutputStream flujo = new DataOutputStream(aux);
+                OutputStream aux = skCliente.getOutputStream(); // Obtiene el flujo de salida 
+                DataOutputStream flujo = new DataOutputStream(aux); // Crea el flujo de salida
 
-                flujo.writeUTF("Hola cliente " + numCli);
+                flujo.writeUTF("Hola cliente " + numCli); // Envía un mensaje al cliente
 
                 skCliente.close();
             }

@@ -1,6 +1,7 @@
 import json
 
 class ChatMessage:
+    # Tipos de mensaje
     WHOISIN = 0
     MESSAGE = 1
     LOGOUT = 2
@@ -10,6 +11,7 @@ class ChatMessage:
         self.message = message
 
     def to_json(self):
+        # convierte el mensaje a formato JSON para enviar por la red
         return json.dumps({"type": self.type, "message": self.message})
 
     @staticmethod

@@ -5,7 +5,7 @@ from berkeley_node import BerkeleyNode
 NUM_NODES = 4
 MASTER_ID = 0
 
-base = int(time.time() * 1000)
+base = int(time.time() * 1000) # tiempo base en ms (simula el tiempo real del sistema)
 nodes = []
 
 # crear nodos con deriva aleatoria entre -1500 y +1500 ms

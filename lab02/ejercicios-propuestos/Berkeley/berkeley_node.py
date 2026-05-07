@@ -1,12 +1,12 @@
 import threading
 import time
-import random
+# import random
 
 class BerkeleyNode(threading.Thread):
     def __init__(self, node_id, base_time, initial_offset, master_id):
         threading.Thread.__init__(self)
         self.id = node_id
-        self.clock = base_time + initial_offset
+        self.clock = base_time + initial_offset # reloj físico
         self.master_id = master_id
         self.is_master = (node_id == master_id)
         self.network_delay = 10 + node_id * 5   # latencia simulada en ms
@@ -41,8 +41,8 @@ class BerkeleyNode(threading.Thread):
             print("ERROR: este nodo no es maestro")
             return
 
-        reported_times = []
-        delays = []
+        reported_times = [] # para almacenar las horas reportadas por cada nodo
+        delays = [] # para almacenar los retrasos estimados de cada nodo
 
         # recolectar horas de todos los nodos (incluyéndose a sí mismo)
         for node in all_nodes:
@@ -62,11 +62,13 @@ class BerkeleyNode(threading.Thread):
         # enviar órdenes de ajuste
         for i, node in enumerate(all_nodes):
             diff = avg_time - reported_times[i]
+            # En el caso del maestro, ajusta su propio reloj
             if node.id == self.id:
                 with self.lock:
                     self.clock = avg_time
                 print(f"MAESTRO ACT  Node-{self.id}  ajusta su reloj a {avg_time}  (diff {diff})")
             else:
+                # Enviar orden de ajuste al esclavo (simulado por llamada directa)
                 new_clock = node.get_clock() + diff
                 node.update_clock(new_clock)
                 print(f"MAESTRO ORDEN Node-{node.id}  debe ajustar en {diff} ms")

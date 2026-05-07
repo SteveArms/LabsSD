@@ -33,7 +33,7 @@ class Client:
             return False
         self.display(f"Connection accepted {self.socket.getpeername()}")
         self.socket.sendall(self.username.encode())
-        threading.Thread(target=self.listen_from_server, daemon=True).start()
+        threading.Thread(target=self.listen_from_server, daemon=True).start() # Create a thread to listen for messages from the server
         return True
 
     def listen_from_server(self):
