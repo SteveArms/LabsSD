@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option java_package = "com.lab05.grpc";
+option java_outer_classname = "ConverterProto";
+
+// ──────────────────────────────────────────────
+//  Servicio de Conversión Distribuida – Lab 05
+//  UNSA · Sistemas Distribuidos · 2026A
+// ──────────────────────────────────────────────
+
+service Converter {
+  // Conversión simple: un valor + tipo → resultado
+  rpc Convert (ConvertRequest) returns (ConvertResponse);
+}
+
+// Tipos de conversión soportados
+enum ConversionType {
+  CELSIUS_TO_FAHRENHEIT = 0;
+  FAHRENHEIT_TO_CELSIUS = 1;
+  SOLES_TO_DOLARES      = 2;
+  DOLARES_TO_SOLES      = 3;
+  KM_TO_MILLAS          = 4;
+  MILLAS_TO_KM          = 5;
+}
+
+message ConvertRequest {
+  double value           = 1;   // Valor a convertir
+  ConversionType type    = 2;   // Tipo de conversión
+}
+
+message ConvertResponse {
+  double result          = 1;   // Resultado de la conversión
+  string unit_label      = 2;   // Etiqueta de la unidad resultante
+  bool   success         = 3;   // true si la conversión fue exitosa
+  string error_message   = 4;   // Mensaje de error si success = false
+}
