@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.grpc";
+
+service Calculator {
+
+  rpc Sum (Request) returns (Response);
+
+}
+
+message Request {
+
+  int32 a = 1;
+  int32 b = 2;
+}
+
+message Response {
+
+  int32 result = 1;
+}
