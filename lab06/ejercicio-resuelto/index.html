@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="contenedor">
+        <h2>Lista de Productos</h2>
+        <button onclick="listar()">Consultar</button>
+        <ul id="lista"></ul>
+    </div>
+<script>
+
+async function listar(){
+    let r = await fetch("http://127.0.0.1:5000/productos");
+    let datos = await r.json();
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
+    datos.forEach(p => {
+        lista.innerHTML += `<li>${p.nombre}</li>`;
+    });
+}
+</script>
+</body>
+</html>
