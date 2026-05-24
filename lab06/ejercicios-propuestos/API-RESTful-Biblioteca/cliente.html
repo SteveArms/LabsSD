@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibliotecaGest</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #1a1a2e;
+            position: fixed;
+            height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .logo {
+            text-align: center;
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo h2 {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .logo p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 12px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card i {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.8rem;
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.3rem 0.6rem;
+            margin: 0 0.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            margin: 10% auto;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .close {
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-success {
+            background: #27ae60;
+        }
+
+        .toast-error {
+            background: #e74c3c;
+        }
+
+        .toast-info {
+            background: #3498db;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-book"></i>
+                <h2>BibliotecaGest</h2>
+                <p>Sistema de Gestión</p>
+            </div>
+            <nav>
+                <div class="nav-item">
+                    <a href="#" class="nav-link active" data-section="list">
+                        <i class="fas fa-list"></i>
+                        <span>Libros</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" data-section="stats">
+                        <i class="fas fa-chart-simple"></i>
+                        <span>Estadísticas</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Gestión de Biblioteca</h1>
+                <p>Administra tu catálogo de libros de manera eficiente</p>
+            </div>
+
+            <!-- Sección de Estadísticas (resumen) -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-book"></i>
+                    <h3>Total Libros</h3>
+                    <div class="number" id="totalBooks">0</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Disponibles</h3>
+                    <div class="number" id="availableBooks">0</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-times-circle"></i>
+                    <h3>No Disponibles</h3>
+                    <div class="number" id="unavailableBooks">0</div>
+                </div>
+            </div>
+
+            <!-- Sección Libros -->
+            <div id="listSection" class="section active">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-plus"></i> Registrar Nuevo Libro
+                    </div>
+                    <form id="bookForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Título *</label>
+                                <input type="text" id="titulo" required placeholder="Ingrese el título">
+                            </div>
+                            <div class="form-group">
+                                <label>Autor *</label>
+                                <input type="text" id="autor" required placeholder="Ingrese el autor">
+                            </div>
+                            <div class="form-group">
+                                <label>ISBN</label>
+                                <input type="text" id="isbn" placeholder="Código ISBN">
+                            </div>
+                            <div class="form-group">
+                                <label>Año</label>
+                                <input type="number" id="anioPublicacion" placeholder="Año de publicación">
+                            </div>
+                            <div class="form-group">
+                                <label>Disponible</label>
+                                <select id="disponible">
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.8rem; justify-content: flex-end;">
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-search"></i> Catálogo de Libros
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Buscar por título, autor o ISBN...">
+                        <button class="btn btn-primary" onclick="buscarLibros()">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button class="btn btn-secondary" onclick="cargarLibros()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>ISBN</th>
+                                    <th>Año</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="booksTableBody">
+                                <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Estadísticas Detalladas -->
+            <div id="statsSection" class="section">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-chart-pie"></i> Estadísticas del Sistema
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Total de Libros</label>
+                            <div style="font-size: 2rem; font-weight: 700; color: #667eea;" id="statsTotal">0</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Libros Disponibles</label>
+                            <div style="font-size: 2rem; font-weight: 700; color: #27ae60;" id="statsAvailable">0</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Libros No Disponibles</label>
+                            <div style="font-size: 2rem; font-weight: 700; color: #e74c3c;" id="statsUnavailable">0</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tasa de Disponibilidad</label>
+                            <div style="font-size: 2rem; font-weight: 700; color: #3498db;" id="statsRate">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Editar -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Libro</h3>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="editTitulo" required>
+                </div>
+                <div class="form-group">
+                    <label>Autor</label>
+                    <input type="text" id="editAutor" required>
+                </div>
+                <div class="form-group">
+                    <label>ISBN</label>
+                    <input type="text" id="editIsbn">
+                </div>
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="number" id="editAnio">
+                </div>
+                <div class="form-group">
+                    <label>Disponible</label>
+                    <select id="editDisponible">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.8rem; margin-top: 1.2rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/libros';
+        let librosData = [];
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Load books
+        async function cargarLibros() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error();
+                librosData = await response.json();
+                actualizarTabla(librosData);
+                actualizarEstadisticas();
+            } catch (error) {
+                showToast('Error al cargar los libros', 'error');
+            }
+        }
+
+        // Update table
+        function actualizarTabla(libros) {
+            const tbody = document.getElementById('booksTableBody');
+            if (libros.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No hay libros registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = libros.map(libro => `
+                <tr>
+                    <td>${libro.id}</td>
+                    <td><strong>${escapeHtml(libro.titulo)}</strong></td>
+                    <td>${escapeHtml(libro.autor)}</td>
+                    <td>${libro.isbn || '-'}</td>
+                    <td>${libro.anioPublicacion || '-'}</td>
+                    <td>
+                        <span class="badge ${libro.disponible ? 'badge-success' : 'badge-danger'}">
+                            ${libro.disponible ? 'Disponible' : 'No disponible'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-warning" onclick="abrirModalEditar(${libro.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-danger" onclick="eliminarLibro(${libro.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Add book
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const libro = {
+                titulo: document.getElementById('titulo').value,
+                autor: document.getElementById('autor').value,
+                isbn: document.getElementById('isbn').value,
+                anioPublicacion: parseInt(document.getElementById('anioPublicacion').value) || null,
+                disponible: document.getElementById('disponible').value === 'true'
+            };
+
+            if (!libro.titulo || !libro.autor) {
+                showToast('Complete los campos obligatorios', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(libro)
+                });
+
+                if (response.ok) {
+                    showToast('Libro agregado exitosamente', 'success');
+                    limpiarFormulario();
+                    cargarLibros();
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                showToast('Error al agregar el libro', 'error');
+            }
+        });
+
+        // Edit book
+        async function abrirModalEditar(id) {
+            const libro = librosData.find(l => l.id === id);
+            if (libro) {
+                document.getElementById('editId').value = libro.id;
+                document.getElementById('editTitulo').value = libro.titulo;
+                document.getElementById('editAutor').value = libro.autor;
+                document.getElementById('editIsbn').value = libro.isbn || '';
+                document.getElementById('editAnio').value = libro.anioPublicacion || '';
+                document.getElementById('editDisponible').value = libro.disponible;
+                document.getElementById('editModal').style.display = 'block';
+            }
+        }
+
+        // Update book
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editId').value);
+            const libro = {
+                id: id,
+                titulo: document.getElementById('editTitulo').value,
+                autor: document.getElementById('editAutor').value,
+                isbn: document.getElementById('editIsbn').value,
+                anioPublicacion: parseInt(document.getElementById('editAnio').value) || null,
+                disponible: document.getElementById('editDisponible').value === 'true'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(libro)
+                });
+
+                if (response.ok) {
+                    showToast('Libro actualizado exitosamente', 'success');
+                    cerrarModal();
+                    cargarLibros();
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                showToast('Error al actualizar el libro', 'error');
+            }
+        });
+
+        // Delete book
+        async function eliminarLibro(id) {
+            if (confirm('¿Eliminar este libro?')) {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        showToast('Libro eliminado exitosamente', 'success');
+                        cargarLibros();
+                    } else {
+                        throw new Error();
+                    }
+                } catch (error) {
+                    showToast('Error al eliminar el libro', 'error');
+                }
+            }
+        }
+
+        // Search books
+        function buscarLibros() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            if (!term) {
+                actualizarTabla(librosData);
+                return;
+            }
+            const filtered = librosData.filter(libro => 
+                libro.titulo.toLowerCase().includes(term) ||
+                libro.autor.toLowerCase().includes(term) ||
+                (libro.isbn && libro.isbn.includes(term))
+            );
+            actualizarTabla(filtered);
+            if (filtered.length === 0) {
+                showToast('No se encontraron libros', 'info');
+            }
+        }
+
+        // Update statistics
+        function actualizarEstadisticas() {
+            const total = librosData.length;
+            const disponibles = librosData.filter(l => l.disponible).length;
+            const noDisponibles = total - disponibles;
+            const tasa = total > 0 ? ((disponibles / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalBooks').textContent = total;
+            document.getElementById('availableBooks').textContent = disponibles;
+            document.getElementById('unavailableBooks').textContent = noDisponibles;
+            document.getElementById('statsTotal').textContent = total;
+            document.getElementById('statsAvailable').textContent = disponibles;
+            document.getElementById('statsUnavailable').textContent = noDisponibles;
+            document.getElementById('statsRate').textContent = `${tasa}%`;
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('titulo').value = '';
+            document.getElementById('autor').value = '';
+            document.getElementById('isbn').value = '';
+            document.getElementById('anioPublicacion').value = '';
+            document.getElementById('disponible').value = 'true';
+        }
+
+        function cerrarModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`${section}Section`).classList.add('active');
+            });
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) cerrarModal();
+        }
+
+        // Initialize
+        cargarLibros();
+    </script>
+</body>
+</html>
