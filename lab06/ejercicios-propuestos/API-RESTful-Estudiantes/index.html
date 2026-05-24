@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Estudiantes - API RESTful</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Notificaciones flotantes Toast -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <div class="app-container">
+        <!-- Header de la Aplicación -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1>Sistema de Gestión de Estudiantes</h1>
+                <p>Plataforma administrativa de control académico y API RESTful</p>
+            </div>
+        </header>
+
+        <!-- Layout de Trabajo Principal -->
+        <main class="dashboard-layout">
+            <!-- Columna Izquierda: Formulario de Registro -->
+            <aside class="card-panel">
+                <h2 class="panel-title">Nuevo Estudiante</h2>
+                <form id="studentForm" onsubmit="event.preventDefault(); registrarEstudiante();" novalidate>
+                    <div class="form-group">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <input type="text" id="nombre" class="form-input" placeholder="Ej. Carlos" autocomplete="off" required>
+                        <div class="val-message" id="error-nombre"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="apellido">Apellido</label>
+                        <input type="text" id="apellido" class="form-input" placeholder="Ej. Gómez" autocomplete="off" required>
+                        <div class="val-message" id="error-apellido"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="carrera">Carrera Universitaria</label>
+                        <input type="text" id="carrera" class="form-input" placeholder="Ej. Ingeniería de Sistemas" autocomplete="off" required>
+                        <div class="val-message" id="error-carrera"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="codigo">Código de Alumno</label>
+                        <input type="text" id="codigo" class="form-input" placeholder="Ej. SIS202601" autocomplete="off" required>
+                        <div class="val-message" id="error-codigo"></div>
+                    </div>
+
+                    <button type="submit" id="btnSubmit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Registrar Alumno
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Columna Derecha: Lista y Controles de Búsqueda -->
+            <section class="card-panel">
+                <h2 class="panel-title">Lista General y Filtros</h2>
+                
+                <div class="table-actions-bar">
+                    <div class="search-container">
+                        <span class="search-icon" aria-hidden="true">🔍</span>
+                        <input type="text" id="searchQuery" class="search-input" placeholder="Buscar por nombre, apellido o código..." oninput="onSearchInput()">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="students-table" id="tablaEstudiantes">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Carrera</th>
+                                <th style="width: 150px;">Código</th>
+                                <th style="width: 200px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla">
+                            <!-- Inserción dinámica por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Actualizar Estudiante -->
+    <div id="editModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Actualizar Estudiante</h3>
+                <button class="modal-close" onclick="closeEditModal()" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <form id="editForm" onsubmit="event.preventDefault(); guardarCambiosEstudiante();" novalidate>
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editNombre">Nombre</label>
+                        <input type="text" id="editNombre" class="form-input" placeholder="Ej. Carlos" required>
+                        <div class="val-message" id="edit-error-nombre"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editApellido">Apellido</label>
+                        <input type="text" id="editApellido" class="form-input" placeholder="Ej. Gómez" required>
+                        <div class="val-message" id="edit-error-apellido"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editCarrera">Carrera Universitaria</label>
+                        <input type="text" id="editCarrera" class="form-input" placeholder="Ej. Ingeniería de Sistemas" required>
+                        <div class="val-message" id="edit-error-carrera"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editCodigo">Código de Alumno</label>
+                        <input type="text" id="editCodigo" class="form-input" placeholder="Ej. SIS202601" required>
+                        <div class="val-message" id="edit-error-codigo"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de validaciones
+        const validationRules = {
+            nombre: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/, min: 2, max: 50, empty: "El nombre es obligatorio.", format: "Solo letras y espacios." },
+            apellido: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/, min: 2, max: 50, empty: "El apellido es obligatorio.", format: "Solo letras y espacios." },
+            carrera: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s0-9().,-]+$/, min: 2, max: 50, empty: "La carrera es obligatoria.", format: "Formato de carrera no válido." },
+            codigo: { regex: /^[a-zA-Z0-9]+$/, min: 5, max: 15, empty: "El código es obligatorio.", format: "Debe ser alfanumérico." }
+        };
+
+        // Muestra notificaciones flotantes Toast
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' 
+                ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+            toast.innerHTML = `
+                <div class="toast-icon" aria-hidden="true">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Cerrar notificación">&times;</button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('active'); }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Valida un campo individual y actualiza las clases CSS
+        function validarCampo(inputElement, regex, minLen, maxLen, emptyMsg, formatMsg) {
+            const value = inputElement.value.trim();
+            const group = inputElement.closest('.form-group');
+            const msgElement = group.querySelector('.val-message');
+            
+            if (value === "") {
+                setFieldState(group, msgElement, false, emptyMsg);
+                return false;
+            }
+            if (value.length < minLen || value.length > maxLen) {
+                setFieldState(group, msgElement, false, `Debe tener entre ${minLen} y ${maxLen} caracteres.`);
+                return false;
+            }
+            if (regex && !regex.test(value)) {
+                setFieldState(group, msgElement, false, formatMsg);
+                return false;
+            }
+            setFieldState(group, msgElement, true, "Campo válido");
+            return true;
+        }
+
+        // Modifica las clases y mensajes de validación
+        function setFieldState(group, msgElement, isValid, message) {
+            if (isValid) {
+                group.classList.remove('error');
+                group.classList.add('success');
+                msgElement.textContent = message;
+            } else {
+                group.classList.remove('success');
+                group.classList.add('error');
+                msgElement.textContent = message;
+            }
+        }
+
+        // Configura los eventos input/blur para validación interactiva
+        function setupValidations(formId, prefix = "") {
+            const form = document.getElementById(formId);
+            form.querySelectorAll('.form-input').forEach(input => {
+                const fieldName = input.id.replace(prefix, "").toLowerCase();
+                const rule = validationRules[fieldName];
+                if (!rule) return;
+                
+                const validate = () => validarCampo(input, rule.regex, rule.min, rule.max, rule.empty, rule.format);
+                input.addEventListener('input', validate);
+                input.addEventListener('blur', validate);
+            });
+        }
+
+        // Valida todos los campos de un formulario
+        function validarFormulario(formId, prefix = "") {
+            const form = document.getElementById(formId);
+            let isValid = true;
+            
+            form.querySelectorAll('.form-input').forEach(input => {
+                const fieldName = input.id.replace(prefix, "").toLowerCase();
+                const rule = validationRules[fieldName];
+                if (!rule) return;
+                if (!validarCampo(input, rule.regex, rule.min, rule.max, rule.empty, rule.format)) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        // Restablece el formulario a su estado original sin clases de error/éxito
+        function resetForm(formId) {
+            const form = document.getElementById(formId);
+            form.reset();
+            form.querySelectorAll('.form-group').forEach(g => {
+                g.classList.remove('success', 'error');
+                const valMsg = g.querySelector('.val-message');
+                if (valMsg) valMsg.textContent = '';
+            });
+        }
+
+        // Escapa código HTML para prevenir ataques XSS
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return text;
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Carga la lista de estudiantes desde la API
+        async function cargarEstudiantes() {
+            const tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-row-message"><div class="loading-spinner" aria-label="Cargando"></div><br>Cargando estudiantes...</td></tr>`;
+            
+            const searchVal = document.getElementById('searchQuery').value.trim();
+            const url = '/estudiantes' + (searchVal ? `?search=${encodeURIComponent(searchVal)}` : '');
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Error al cargar listado de estudiantes");
+                
+                const estudiantes = await response.json();
+                tbody.innerHTML = "";
+                
+                if (estudiantes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="empty-row-message">No se encontraron estudiantes en el sistema.</td></tr>`;
+                    return;
+                }
+                
+                estudiantes.forEach(est => {
+                    const fila = document.createElement('tr');
+                    const estJsonStr = JSON.stringify(est).replace(/'/g, "&#39;");
+                    
+                    fila.innerHTML = `
+                        <td><span class="badge-id">${est.id}</span></td>
+                        <td>${escapeHtml(est.nombre)}</td>
+                        <td>${escapeHtml(est.apellido)}</td>
+                        <td><span class="badge-career">${escapeHtml(est.carrera)}</span></td>
+                        <td><span class="badge-code">${escapeHtml(est.codigo)}</span></td>
+                        <td class="actions-cell">
+                            <button class="btn btn-success" onclick='prepararActualizacion(${estJsonStr})' title="Modificar datos">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                                Editar
+                            </button>
+                            <button class="btn btn-danger" onclick='eliminarEstudiante(${est.id})' title="Eliminar estudiante">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                                Eliminar
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-row-message" style="color: var(--error);">Error: ${error.message}</td></tr>`;
+                showToast("Error de conexión", error.message, "error");
+            }
+        }
+
+        // Registra un nuevo estudiante a través de la API
+        async function registrarEstudiante() {
+            if (!validarFormulario('studentForm')) {
+                showToast("Formulario incompleto", "Por favor, corrija los campos marcados en rojo.", "error");
+                return;
+            }
+            
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+            const carrera = document.getElementById('carrera').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            const originalContent = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = `<span class="loading-spinner" style="width: 14px; height: 14px; margin: 0; border-width: 2px;"></span> Registrando...`;
+            
+            try {
+                const response = await fetch('/estudiantes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, apellido, carrera, codigo })
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || "Error al registrar el estudiante");
+                }
+                
+                showToast("Registro completado", "El estudiante ha sido registrado con éxito.", "success");
+                resetForm('studentForm');
+                cargarEstudiantes();
+            } catch (error) {
+                showToast("Fallo al registrar", error.message, "error");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalContent;
+            }
+        }
+
+        // Elimina un estudiante por su ID
+        async function eliminarEstudiante(id) {
+            if (!confirm("¿Está seguro de que desea eliminar al estudiante de forma permanente?")) return;
+            
+            try {
+                const response = await fetch(`/estudiantes/${id}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || "No se pudo eliminar al estudiante");
+                }
+                
+                showToast("Estudiante eliminado", "El registro del estudiante fue removido.", "success");
+                cargarEstudiantes();
+            } catch (error) {
+                showToast("Error de eliminación", error.message, "error");
+            }
+        }
+
+        // Abre el modal de edición y carga la información del estudiante
+        function prepararActualizacion(estudiante) {
+            resetForm('editForm');
+            document.getElementById('editId').value = estudiante.id;
+            document.getElementById('editNombre').value = estudiante.nombre;
+            document.getElementById('editApellido').value = estudiante.apellido;
+            document.getElementById('editCarrera').value = estudiante.carrera;
+            document.getElementById('editCodigo').value = estudiante.codigo;
+            
+            validarFormulario('editForm', 'edit');
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Cierra el modal de edición
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Guarda los cambios del estudiante editado
+        async function guardarCambiosEstudiante() {
+            if (!validarFormulario('editForm', 'edit')) {
+                showToast("Edición incompleta", "Por favor corrija los campos inválidos.", "error");
+                return;
+            }
+            
+            const id = document.getElementById('editId').value;
+            const nombre = document.getElementById('editNombre').value.trim();
+            const apellido = document.getElementById('editApellido').value.trim();
+            const carrera = document.getElementById('editCarrera').value.trim();
+            const codigo = document.getElementById('editCodigo').value.trim();
+            
+            try {
+                const response = await fetch(`/estudiantes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, apellido, carrera, codigo })
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || "No se pudieron actualizar los datos.");
+                }
+                
+                showToast("Cambios guardados", "Información del estudiante actualizada exitosamente.", "success");
+                closeEditModal();
+                cargarEstudiantes();
+            } catch (error) {
+                showToast("Error al actualizar", error.message, "error");
+            }
+        }
+
+        // Temporizador para búsqueda reactiva (Debounce)
+        let debounceTimer;
+        function onSearchInput() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => cargarEstudiantes(), 350);
+        }
+
+        // Cierra modal al hacer clic en el fondo
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('editModal');
+            if (e.target === modal) closeEditModal();
+        });
+
+        // Carga inicial
+        document.addEventListener('DOMContentLoaded', () => {
+            setupValidations('studentForm');
+            setupValidations('editForm', 'edit');
+            cargarEstudiantes();
+        });
+    </script>
+</body>
+
+</html>
