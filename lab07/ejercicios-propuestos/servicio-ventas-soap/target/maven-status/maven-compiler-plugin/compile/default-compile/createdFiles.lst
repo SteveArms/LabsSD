@@ -1,0 +1,4 @@
+com\ventas\soap\PublicadorServicio.class
+com\ventas\soap\ClienteVentas.class
+com\ventas\soap\ServicioVentasInterface.class
+com\ventas\soap\ServicioVentasImpl.class
