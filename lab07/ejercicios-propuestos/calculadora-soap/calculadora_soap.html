@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora SOAP</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            margin:40px;
+        }
+
+        .container{
+            max-width:500px;
+            padding:20px;
+            border:1px solid #ccc;
+            border-radius:10px;
+        }
+
+        input, select, button{
+            width:100%;
+            padding:10px;
+            margin-top:10px;
+            margin-bottom:10px;
+        }
+
+        #resultado{
+            margin-top:20px;
+            font-size:20px;
+            font-weight:bold;
+        }
+
+        #estado{
+            margin-bottom:15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Calculadora SOAP</h2>
+
+    <p id="estado">Verificando conexión...</p>
+
+    <label>Número A</label>
+    <input type="number" id="a" value="5">
+
+    <label>Número B</label>
+    <input type="number" id="b" value="8">
+
+    <label>Operación</label>
+    <select id="operacion">
+        <option value="Add">Sumar</option>
+        <option value="Subtract">Restar</option>
+        <option value="Multiply">Multiplicar</option>
+        <option value="Divide">Dividir</option>
+    </select>
+
+    <button onclick="consumirSOAP()">
+        Consultar Servicio SOAP
+    </button>
+
+    <div id="resultado"></div>
+
+</div>
+
+<script>
+
+async function verificarEstado() {
+
+    try {
+
+        const response = await fetch('/status');
+        const data = await response.json();
+
+        if(data.status === 'online'){
+            document.getElementById('estado').innerHTML =
+                '🟢 Servicio SOAP disponible';
+        } else {
+            document.getElementById('estado').innerHTML =
+                '🔴 Servicio SOAP no disponible';
+        }
+
+    } catch(error){
+
+        document.getElementById('estado').innerHTML =
+            '🔴 Error de conexión';
+
+    }
+
+}
+
+async function consumirSOAP() {
+
+    const a = document.getElementById('a').value;
+    const b = document.getElementById('b').value;
+    const operation = document.getElementById('operacion').value;
+
+    try {
+
+        const response = await fetch('/soap', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                operation: operation,
+                a: a,
+                b: b
+            })
+        });
+
+        const data = await response.json();
+
+        if(data.error){
+            document.getElementById('resultado').innerHTML =
+                'Error: ' + data.error;
+            return;
+        }
+
+        document.getElementById('resultado').innerHTML =
+        `<h2>Resultado: ${data.result}</h2>`;
+
+    }
+    catch(error){
+
+        document.getElementById('resultado').innerHTML =
+            'Error al conectar con el proxy';
+
+        console.error(error);
+
+    }
+
+}
+
+verificarEstado();
+
+</script>
+
+</body>
+</html>
