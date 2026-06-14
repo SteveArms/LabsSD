@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db_arequipa:
+    image: postgres:16
+    container_name: arequipa_db
+    environment:
+      POSTGRES_DB: almacen_arequipa
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init/arequipa.sql:/docker-entrypoint-initdb.d/init.sql
+    command: postgres -c max_prepared_transactions=10
+
+  db_lima:
+    image: postgres:16
+    container_name: lima_db
+    environment:
+      POSTGRES_DB: almacen_lima
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./init/lima.sql:/docker-entrypoint-initdb.d/init.sql
+    command: postgres -c max_prepared_transactions=10
