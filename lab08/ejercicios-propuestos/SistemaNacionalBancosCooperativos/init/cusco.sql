@@ -1,0 +1,16 @@
+-- ============================================================
+-- Inicialización del nodo: Banco Cusco
+-- Base de datos: banco_cusco
+-- ============================================================
+
+-- Crear tabla de cuentas con restricción de saldo no negativo
+CREATE TABLE IF NOT EXISTS cuentas (
+    id     SERIAL PRIMARY KEY,
+    nombre VARCHAR(100)    NOT NULL,
+    saldo  DECIMAL(10, 2)  NOT NULL CHECK (saldo >= 0)
+);
+
+-- Insertar datos iniciales
+-- Saldo inicial: S/ 50,000.00
+INSERT INTO cuentas (nombre, saldo)
+VALUES ('Cuenta Cusco', 50000.00);
