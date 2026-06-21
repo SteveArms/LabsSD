@@ -1,0 +1,147 @@
+services:
+
+  # ---------- BASES DE DATOS (una por microservicio) ----------
+  db-inventario:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: logifresh
+      POSTGRES_PASSWORD: logifresh
+      POSTGRES_DB: inventario
+    volumes:
+      - data_inventario:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logifresh -d inventario"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-facturacion:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: logifresh
+      POSTGRES_PASSWORD: logifresh
+      POSTGRES_DB: facturacion
+    volumes:
+      - data_facturacion:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logifresh -d facturacion"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-transporte:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: logifresh
+      POSTGRES_PASSWORD: logifresh
+      POSTGRES_DB: transporte
+    volumes:
+      - data_transporte:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logifresh -d transporte"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-notificaciones:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: logifresh
+      POSTGRES_PASSWORD: logifresh
+      POSTGRES_DB: notificaciones
+    volumes:
+      - data_notificaciones:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logifresh -d notificaciones"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-pedidos:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: logifresh
+      POSTGRES_PASSWORD: logifresh
+      POSTGRES_DB: pedidos
+    volumes:
+      - data_pedidos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logifresh -d pedidos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------- MICROSERVICIOS ----------
+  inventario:
+    build: ./services/inventario
+    environment:
+      DATABASE_URL: postgresql://logifresh:logifresh@db-inventario:5432/inventario
+    depends_on:
+      db-inventario:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  facturacion:
+    build: ./services/facturacion
+    environment:
+      DATABASE_URL: postgresql://logifresh:logifresh@db-facturacion:5432/facturacion
+    depends_on:
+      db-facturacion:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+
+  transporte:
+    build: ./services/transporte
+    environment:
+      DATABASE_URL: postgresql://logifresh:logifresh@db-transporte:5432/transporte
+    depends_on:
+      db-transporte:
+        condition: service_healthy
+    ports:
+      - "8003:8000"
+
+  notificaciones:
+    build: ./services/notificaciones
+    environment:
+      DATABASE_URL: postgresql://logifresh:logifresh@db-notificaciones:5432/notificaciones
+      # Estas variables permiten simular condiciones reales para las pruebas
+      # de rendimiento e integración de las Actividades 3 y 4.
+      NOTIFICACIONES_DELAY_MS: "200"
+      NOTIFICACIONES_DELAY_JITTER_MS: "150"
+      NOTIFICACIONES_TASA_FALLO: "0.0"
+    depends_on:
+      db-notificaciones:
+        condition: service_healthy
+    ports:
+      - "8004:8000"
+
+  pedidos:
+    build: ./services/pedidos
+    environment:
+      DATABASE_URL: postgresql://logifresh:logifresh@db-pedidos:5432/pedidos
+      INVENTARIO_URL: http://inventario:8000
+      FACTURACION_URL: http://facturacion:8000
+      TRANSPORTE_URL: http://transporte:8000
+      NOTIFICACIONES_URL: http://notificaciones:8000
+    depends_on:
+      db-pedidos:
+        condition: service_healthy
+      inventario:
+        condition: service_started
+      facturacion:
+        condition: service_started
+      transporte:
+        condition: service_started
+      notificaciones:
+        condition: service_started
+    ports:
+      - "8000:8000"
+
+volumes:
+  data_inventario:
+  data_facturacion:
+  data_transporte:
+  data_notificaciones:
+  data_pedidos:
