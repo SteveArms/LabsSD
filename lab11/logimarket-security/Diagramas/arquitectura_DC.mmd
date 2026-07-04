@@ -1,0 +1,36 @@
+flowchart TB
+    subgraph Cliente
+        PW[Portal Web]
+        APP[App Móvil]
+    end
+
+    subgraph Gateway["API Gateway (app.py)"]
+        RL[Rate Limiter<br/>5 req/min]
+        JWTV[Validador de JWT]
+    end
+
+    subgraph Auth["Servicio de Autenticación"]
+        LOGIN["/login<br/>valida usuario+password"]
+        MFA["/verify-mfa<br/>valida código TOTP"]
+        HASH[(Almacén de credenciales<br/>hash bcrypt + salt)]
+        TOTP[(Secreto TOTP<br/>por usuario)]
+        IDM[Gestión de Identidades<br/>usuario -> rol]
+    end
+
+    subgraph Auditoria
+        LOG[(audit.log JSON)]
+    end
+
+    PW --> RL
+    APP --> RL
+    RL --> LOGIN
+    LOGIN --> HASH
+    LOGIN -->|credenciales OK| MFA
+    MFA --> TOTP
+    MFA -->|código OK| IDM
+    IDM -->|JWT firmado con rol| PW
+    IDM -->|JWT firmado con rol| APP
+
+    LOGIN --> LOG
+    MFA --> LOG
+    JWTV --> LOG

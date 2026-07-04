@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+  Portal Web para Clientes - LogiMarket Perú S.A.C.
+  ---------------------------------------------------
+  Este archivo representa el "Portal web para clientes" mencionado en el
+  caso de estudio. Es un CLIENTE que consume el API Gateway (app.py) a
+  través de HTTPS, siguiendo el mismo flujo de seguridad: login ->
+  verificación MFA -> uso del JWT para consultar inventario, pagos y
+  logística.
+
+  Cómo usarlo:
+    1. Ejecute primero: python app.py   (deja el Gateway en https://localhost:5000)
+    2. Abra este archivo directamente en el navegador (doble clic) o
+       sírvalo con cualquier servidor estático.
+    3. El navegador mostrará una advertencia de certificado autofirmado
+       (normal en este laboratorio) -> acéptela para continuar.
+    4. Revise la consola donde corre app.py para ver el código MFA.
+
+  La Aplicación móvil de LogiMarket consumiría exactamente el mismo
+  contrato REST/JSON expuesto aquí (mismos endpoints, mismos headers
+  Authorization: Bearer <token>); no se requiere una API distinta.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>LogiMarket - Portal de Clientes</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 480px; margin: 40px auto; background:#f4f6f8; }
+  .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.1); margin-bottom:16px; }
+  h2 { margin-top:0; color:#1e293b; }
+  input { width:100%; padding:8px; margin:6px 0; box-sizing:border-box; }
+  button { padding:8px 14px; margin-top:8px; cursor:pointer; }
+  pre { background:#0f172a; color:#e2e8f0; padding:10px; border-radius:6px; overflow-x:auto; font-size:12px; }
+  .hidden { display:none; }
+  label { font-size:13px; color:#475569; }
+</style>
+</head>
+<body>
+
+<h2>🔒 LogiMarket - Portal de Clientes</h2>
+
+<div class="card" id="loginCard">
+  <h3>1. Iniciar sesión</h3>
+  <label>Usuario</label>
+  <input id="username" value="admin">
+  <label>Contraseña</label>
+  <input id="password" type="password" value="Admin#2026">
+  <button onclick="login()">Ingresar</button>
+</div>
+
+<div class="card hidden" id="mfaCard">
+  <h3>2. Verificación MFA</h3>
+  <p>Revise la consola donde corre <code>app.py</code> para ver el código.</p>
+  <label>Código TOTP</label>
+  <input id="codigo">
+  <button onclick="verifyMfa()">Verificar</button>
+</div>
+
+<div class="card hidden" id="dashboardCard">
+  <h3>3. Panel del cliente</h3>
+  <button onclick="callApi('inventario')">Ver inventario</button>
+  <button onclick="callApi('pagos')">Ver pagos</button>
+  <button onclick="callApi('logistica')">Ver logística</button>
+</div>
+
+<div class="card">
+  <h3>Resultado</h3>
+  <pre id="output">(esperando acción...)</pre>
+</div>
+
+<script>
+const API_BASE = "https://127.0.0.1:5000"; // Gateway (app.py)
+let mfaToken = null;
+let accessToken = null;
+
+function show(id) { document.getElementById(id).classList.remove("hidden"); }
+function log(data) { document.getElementById("output").textContent = JSON.stringify(data, null, 2); }
+
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const resp = await fetch(`${API_BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await resp.json();
+  log(data);
+  if (resp.ok) {
+    mfaToken = data.mfa_token;
+    show("mfaCard");
+  }
+}
+
+async function verifyMfa() {
+  const codigo = document.getElementById("codigo").value;
+  const resp = await fetch(`${API_BASE}/verify-mfa`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mfa_token: mfaToken, codigo })
+  });
+  const data = await resp.json();
+  log(data);
+  if (resp.ok) {
+    accessToken = data.access_token;
+    show("dashboardCard");
+  }
+}
+
+async function callApi(servicio) {
+  const resp = await fetch(`${API_BASE}/api/${servicio}`, {
+    headers: { "Authorization": `Bearer ${accessToken}` }
+  });
+  const data = await resp.json();
+  log(data);
+}
+</script>
+
+</body>
+</html>

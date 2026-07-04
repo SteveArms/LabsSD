@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Origen["Fuentes de eventos"]
+        E1[Login exitoso/fallido]
+        E2[Verificación MFA]
+        E3[Acceso a endpoints protegidos]
+        E4[Cambios en inventario]
+        E5[Bloqueo por Rate Limiting]
+        E6[Errores de autenticación/token]
+    end
+
+    E1 & E2 & E3 & E4 & E5 & E6 --> COLLECT["Recolector de eventos<br/>(middleware de auditoría)"]
+
+    COLLECT --> ENRICH["Enriquecer evento:<br/>timestamp, usuario, IP, acción, resultado"]
+
+    ENRICH --> WRITE["Escribir en audit.log<br/>(formato JSON Lines)"]
+
+    WRITE --> CLASSIFY{"¿Evento crítico?"}
+
+    CLASSIFY -->|Sí: ej. 5+ fallos de login,<br/>acceso denegado repetido,<br/>rate limit excedido| ALERT["Generar alerta"]
+    CLASSIFY -->|No: evento normal| STORE
+
+    ALERT --> NOTIFY["Notificar a equipo de seguridad<br/>(consola / correo / Slack)"]
+    NOTIFY --> STORE["Almacenamiento de logs"]
+
+    STORE --> HOT["Almacenamiento activo<br/>(0-30 días, consulta rápida)"]
+    HOT --> WARM["Almacenamiento histórico<br/>(30-180 días, solo lectura)"]
+    WARM --> RETENTION{"¿Supera política<br/>de retención?"}
+
+    RETENTION -->|Sí, >180 días<br/>y sin valor legal| PURGE["Eliminación segura"]
+    RETENTION -->|No, dentro de plazo<br/>normativo/legal| ARCHIVE["Archivo comprimido<br/>(cumplimiento normativo)"]

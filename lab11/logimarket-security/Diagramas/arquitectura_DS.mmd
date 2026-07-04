@@ -1,0 +1,34 @@
+sequenceDiagram
+    actor U as Usuario
+    participant C as Cliente (Portal/App)
+    participant GW as API Gateway
+    participant A as Servicio Autenticación
+    participant DB as Almacén (hash + TOTP)
+    participant L as audit.log
+
+    U->>C: Ingresa usuario y contraseña
+    C->>GW: POST /login {usuario, password}
+    GW->>A: Reenvía solicitud (rate limit OK)
+    A->>DB: Verifica hash bcrypt
+    alt Credenciales inválidas
+        A->>L: Registrar FALLO_CREDENCIALES
+        A-->>C: 401 Unauthorized
+    else Credenciales válidas
+        A->>DB: Genera código TOTP
+        A->>L: Registrar EXITO_CREDENCIALES_MFA_PENDIENTE
+        A-->>C: 200 OK {mfa_token}
+        Note over U,A: Código TOTP se muestra<br/>en consola (simulación MFA)
+        U->>C: Ingresa código TOTP
+        C->>GW: POST /verify-mfa {mfa_token, codigo}
+        GW->>A: Reenvía solicitud
+        A->>DB: Valida código TOTP
+        alt Código incorrecto/expirado
+            A->>L: Registrar FALLO_CODIGO_MFA
+            A-->>C: 401 Unauthorized
+        else Código correcto
+            A->>A: Genera JWT final (usuario + rol + expiración)
+            A->>L: Registrar EXITO_LOGIN_COMPLETO
+            A-->>C: 200 OK {access_token}
+            C->>U: Sesión iniciada
+        end
+    end

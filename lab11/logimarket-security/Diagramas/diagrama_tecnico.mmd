@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph Clientes["Clientes externos"]
+        PW[Portal Web]
+        APP[App Móvil]
+        EXT[Aplicación de terceros]
+    end
+
+    subgraph Gateway["API Gateway (punto único de entrada)"]
+        direction TB
+        RL["Rate Limiting<br/>5 req/min por IP"]
+        JWTV["Validador de JWT<br/>firma + expiración + rol"]
+        ROUTER["Enrutador de peticiones"]
+        RL --> JWTV --> ROUTER
+    end
+
+    subgraph OAuthServer["Servidor de Autorización (OAuth 2.0)"]
+        direction TB
+        AUTHZ["/oauth/authorize<br/>autentica al usuario"]
+        TOKEN["/oauth/token<br/>emite access_token (JWT)"]
+        SCOPES["Gestión de scopes<br/>(read:inventario, write:pagos, etc.)"]
+        AUTHZ --> TOKEN --> SCOPES
+    end
+
+    subgraph Microservicios["Microservicios internos (red privada)"]
+        INV["Servicio de Inventario"]
+        PAG["Servicio de Pagos"]
+        LOG["Servicio de Logística"]
+    end
+
+    subgraph Observabilidad
+        AUDIT[(audit.log<br/>eventos + accesos)]
+    end
+
+    PW -->|1. Solicita acceso| Gateway
+    APP -->|1. Solicita acceso| Gateway
+    EXT -->|1. Solicita acceso| Gateway
+
+    Gateway -.->|2. Redirige si no hay token| OAuthServer
+    OAuthServer -.->|3. Entrega JWT firmado con scopes| Gateway
+
+    ROUTER -->|4. Petición autorizada| INV
+    ROUTER -->|4. Petición autorizada| PAG
+    ROUTER -->|4. Petición autorizada| LOG
+
+    RL --> AUDIT
+    JWTV --> AUDIT
+    ROUTER --> AUDIT

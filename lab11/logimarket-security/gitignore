@@ -1,0 +1,23 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Archivos generados en tiempo de ejecución (no deben subirse al repo)
+cert.pem
+key.pem
+audit.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Entornos / editores
+.vscode/
+.idea/
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

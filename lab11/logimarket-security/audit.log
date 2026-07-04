@@ -1,0 +1,8 @@
+{"timestamp": "2026-07-04T23:19:27.742519Z", "usuario": "anonimo", "ip": "127.0.0.1", "accion": "acceso_denegado:/api/pagos", "resultado": "FALLO_SIN_TOKEN"}
+{"timestamp": "2026-07-04T23:40:59.174794Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "login", "resultado": "EXITO_CREDENCIALES_MFA_PENDIENTE"}
+{"timestamp": "2026-07-04T23:42:07.136703Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "verify-mfa", "resultado": "FALLO_CODIGO_MFA_INCORRECTO"}
+{"timestamp": "2026-07-04T23:42:51.358120Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "login", "resultado": "EXITO_CREDENCIALES_MFA_PENDIENTE"}
+{"timestamp": "2026-07-04T23:43:00.207937Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "verify-mfa", "resultado": "EXITO_LOGIN_COMPLETO"}
+{"timestamp": "2026-07-04T23:43:03.515890Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "acceso_concedido:/api/inventario", "resultado": "OK"}
+{"timestamp": "2026-07-04T23:43:05.610431Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "acceso_concedido:/api/pagos", "resultado": "OK"}
+{"timestamp": "2026-07-04T23:43:06.269727Z", "usuario": "admin", "ip": "127.0.0.1", "accion": "acceso_concedido:/api/logistica", "resultado": "OK"}
