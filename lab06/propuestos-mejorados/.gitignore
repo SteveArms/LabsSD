@@ -1,0 +1,50 @@
+# Entornos virtuales de Python
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Carpetas de Maven (Java)
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Archivos JAR generados (ya dentro de target)
+*.jar
+*.war
+*.ear
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.DS_Store
+
+# Archivos de configuración local
+.env
+.env.local
+*.properties.local
+
+# Archivos temporales
+*.tmp
+*.swp
+*.swo
+*~
